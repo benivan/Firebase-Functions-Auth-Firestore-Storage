@@ -107,7 +107,25 @@ exports.login = (req, res) => {
     });
   return res.status(200);
 };
-
+//Get UserDetails
+exports.getUserDetails = (req, res) => {
+  let userDetails = {};
+  db.doc(`/users/${req.user.handle}`)
+    .get()
+    .then((doc) => {
+      if (doc.exists) {
+        userDetails.userCredentials = doc.data();
+        return res.json(userDetails);
+      } else {
+        return res.status(404).json({ error: `${req.user.handle} not found` });
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+      return res.status(500).json({ error: err.code });
+    });
+};
+//Add UserDetails
 exports.addUserDetails = (req, res) => {
   // const userDetailFromReqBody = {
   //   bio: req.body.bio,

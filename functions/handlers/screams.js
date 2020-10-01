@@ -1,5 +1,6 @@
 const { db } = require("../util/admin");
 
+//GetAllScreams
 exports.getAllScreams = (req, res) => {
   return db
     .collection("screams")
@@ -20,6 +21,25 @@ exports.getAllScreams = (req, res) => {
     .catch((err) => console.error(err));
 };
 
+//GetAllScream of Authorized user
+exports.getUserScreams = (req, res) => {
+  db.collection("screams")
+    .where("userHandle", "==", req.user.handle)
+    .get()
+    .then((data) => {
+      let screams = [];
+      data.forEach((doc) => {
+        screams.push({
+          createdAt: doc.data().createdAt,
+          body: doc.data().body,
+        });
+      });
+      return res.json(screams);
+    })
+    .catch((err) => console.error(err));
+};
+
+//PostOneScream by Authorized User
 exports.postOneScream = (req, res) => {
   //Request body
   const newScream = {
@@ -33,7 +53,7 @@ exports.postOneScream = (req, res) => {
   db.collection("screams")
     .add(newScream)
     .then((doc) => {
-      res.json({ message: `document ${doc.id} created successfully` });
+      res.json({ message: `Scream created successfully` });
       return res.status(201);
     })
     .catch((err) => {
