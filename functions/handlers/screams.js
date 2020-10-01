@@ -1,7 +1,8 @@
 const { db } = require("../util/admin");
 
 exports.getAllScreams = (req, res) => {
-  db.collection("screams")
+  return db
+    .collection("screams")
     .orderBy("createdAt", "desc") // this arrange all the data a\q to latest created date
     .get()
     .then((data) => {
@@ -33,6 +34,7 @@ exports.postOneScream = (req, res) => {
     .add(newScream)
     .then((doc) => {
       res.json({ message: `document ${doc.id} created successfully` });
+      return res.status(201);
     })
     .catch((err) => {
       res.status(500).json({ error: "somethig went wrong" });

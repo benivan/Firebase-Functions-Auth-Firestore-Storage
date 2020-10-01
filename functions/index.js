@@ -2,10 +2,13 @@ const functions = require("firebase-functions");
 
 const express = require("express");
 
-const { json } = require("express");
-
 const { getAllScreams, postOneScream } = require("./handlers/screams");
-const { signup, login } = require("./handlers/users");
+const {
+  signup,
+  login,
+  uploadImage,
+  addUserDetails,
+} = require("./handlers/users");
 
 const verifyJwtToken = require("./util/verifyJwtToken");
 
@@ -20,6 +23,8 @@ app.post("/scream", verifyJwtToken, postOneScream);
 //Users ROUTE
 app.post("/signup", signup);
 app.post("/login", login);
+app.post("/user/image", verifyJwtToken, uploadImage);
+app.post("/user", verifyJwtToken, addUserDetails);
 
 //Telling the firebase that all our routs are in the app
 exports.api = functions.https.onRequest(app);
