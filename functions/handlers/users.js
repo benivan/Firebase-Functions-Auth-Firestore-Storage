@@ -152,7 +152,7 @@ exports.uploadImage = (req, res) => {
   const os = require("os");
   const fs = require("fs");
 
-  const busboy = new BusBoy({ headers: req.headers });
+  const busboy = new BusBoy({ headers: req.headers, body: req.body });
 
   let imageFileName;
   let imageToBeUplaoded = {};
@@ -168,9 +168,7 @@ exports.uploadImage = (req, res) => {
     //my.image.jpe
     const imageExtension = filename.split(".")[filename.split(".").length - 1];
     //random imange name  184445165486.png
-    imageFileName = `${Math.round(
-      Math.random() * 100000000000
-    )}.${imageExtension}`;
+    imageFileName = `${Date.now()}.${imageExtension}`;
     const filepath = path.join(os.tmpdir(), imageFileName);
 
     imageToBeUplaoded = { filepath, mimetype };

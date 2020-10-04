@@ -8,6 +8,8 @@ const {
   getUserScreams,
   getScream,
   commentOnScream,
+  likeScream,
+  unlikeScream,
 } = require("./handlers/screams");
 
 const {
@@ -30,6 +32,8 @@ app.post("/scream", verifyJwtToken, postOneScream);
 app.get("/u/screams", verifyJwtToken, getUserScreams);
 app.get("/scream/:screamId", getScream);
 app.post("/scream/:screamId/comment", verifyJwtToken, commentOnScream);
+app.post("/scream/:screamId/like", verifyJwtToken, likeScream);
+app.post("/scream/:screamId/unlike", verifyJwtToken, unlikeScream);
 
 //Users ROUTE
 app.post("/signup", signup);
