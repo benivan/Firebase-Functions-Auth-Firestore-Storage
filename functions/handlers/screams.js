@@ -162,14 +162,22 @@ exports.likeScream = (req, res) => {
   const unlikeDocument = db
     .collection("unlikes")
     .where("screamId", "==", req.params.screamId)
-    .where("userHandel", "==", req.user.handle);
+    .where("userHandle", "==", req.user.handle);
 
   const screamDocument = db.collection("screams").doc(req.params.screamId);
 
   let screamData;
-  let IsUnlike;
-  let unLikeDoc;
+  let IsUnliked;
+  let UnlikedDociD;
 
+  unlikeDocument.get().then((snapshot) => {
+    if (snapshot.empty) {
+      return (IsUnliked = false);
+    } else {
+      UnlikedDociD = snapshot.docs[0].id;
+      return (IsUnliked = true);
+    }
+  });
   screamDocument
     .get()
     .then((doc) => {
@@ -182,6 +190,7 @@ exports.likeScream = (req, res) => {
       }
     })
     .then((snapshot) => {
+      console.log(IsUnliked, UnlikedDociD);
       if (snapshot.empty) {
         return db
           .collection("likes")
@@ -195,7 +204,20 @@ exports.likeScream = (req, res) => {
             return screamDocument.update({ likeCount: screamData.likeCount });
           })
           .then(() => {
-            return res.json(screamData);
+            if (IsUnliked) {
+              db.doc(`/unlikes/${UnlikedDociD}`)
+                .delete()
+                .then(() => {
+                  screamData.unlikeCount--;
+                  screamDocument
+                    .update({ unlikeCount: screamData.unlikeCount })
+                    .then(() => {
+                      return res.json(screamData);
+                    });
+                });
+            } else {
+              return res.json(screamData);
+            }
           });
       } else {
         return res.status(400).json({ error: "Scream already Liked" });
@@ -224,6 +246,7 @@ exports.unlikeScream = (req, res) => {
   let isLiked;
   let likeDociD;
 
+  //checking for Likes
   likeDocument.get().then((snapshot) => {
     if (snapshot.empty) {
       return (isLiked = false);
@@ -244,7 +267,7 @@ exports.unlikeScream = (req, res) => {
       }
     })
     .then((snapshot) => {
-      console.log(isLiked, likeDociD.iD);
+      console.log(isLiked, likeDociD);
       if (snapshot.empty) {
         return db
           .collection("unlikes")
