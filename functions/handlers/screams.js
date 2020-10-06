@@ -143,13 +143,17 @@ exports.commentOnScream = (req, res) => {
             commentCount: screamData.commentCount,
           });
         })
-        .then((data) => {
-          res.status(201);
+        .then(() => {
+          return res.status(201);
         })
         .catch((err) => {
           res.status(500).json({ error: "somethig went wrong" });
           console.error(err);
         });
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500);
     });
 };
 
@@ -170,14 +174,19 @@ exports.likeScream = (req, res) => {
   let IsUnliked;
   let UnlikedDociD;
 
-  unlikeDocument.get().then((snapshot) => {
-    if (snapshot.empty) {
-      return (IsUnliked = false);
-    } else {
-      UnlikedDociD = snapshot.docs[0].id;
-      return (IsUnliked = true);
-    }
-  });
+  unlikeDocument
+    .get()
+    .then((snapshot) => {
+      if (snapshot.empty) {
+        return (IsUnliked = false);
+      } else {
+        UnlikedDociD = snapshot.docs[0].id;
+        return (IsUnliked = true);
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+    });
   screamDocument
     .get()
     .then((doc) => {
@@ -205,11 +214,12 @@ exports.likeScream = (req, res) => {
           })
           .then(() => {
             if (IsUnliked) {
-              db.doc(`/unlikes/${UnlikedDociD}`)
+              return db
+                .doc(`/unlikes/${UnlikedDociD}`)
                 .delete()
                 .then(() => {
                   screamData.unlikeCount--;
-                  screamDocument
+                  return screamDocument
                     .update({ unlikeCount: screamData.unlikeCount })
                     .then(() => {
                       return res.json(screamData);
@@ -247,14 +257,19 @@ exports.unlikeScream = (req, res) => {
   let likeDociD;
 
   //checking for Likes
-  likeDocument.get().then((snapshot) => {
-    if (snapshot.empty) {
-      return (isLiked = false);
-    } else {
-      likeDociD = snapshot.docs[0].id;
-      return (isLiked = true);
-    }
-  });
+  likeDocument
+    .get()
+    .then((snapshot) => {
+      if (snapshot.empty) {
+        return (isLiked = false);
+      } else {
+        likeDociD = snapshot.docs[0].id;
+        return (isLiked = true);
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+    });
   screamDocument
     .get()
     .then((doc) => {
@@ -278,17 +293,22 @@ exports.unlikeScream = (req, res) => {
           })
           .then(() => {
             screamData.unlikeCount++;
-            return screamDocument.update({
-              unlikeCount: screamData.unlikeCount,
-            });
+            return screamDocument
+              .update({
+                unlikeCount: screamData.unlikeCount,
+              })
+              .catch((er) => {
+                console.error(err);
+              });
           })
           .then(() => {
             if (isLiked) {
-              db.doc(`/likes/${likeDociD}`)
+              return db
+                .doc(`/likes/${likeDociD}`)
                 .delete()
                 .then(() => {
                   screamData.likeCount--;
-                  screamDocument
+                  return screamDocument
                     .update({ likeCount: screamData.likeCount })
                     .then(() => {
                       return res.json(screamData);
