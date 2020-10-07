@@ -2,7 +2,7 @@ const functions = require("firebase-functions");
 
 const express = require("express");
 
-const db = require("./util/admin");
+const { db } = require("./util/admin");
 
 const {
   getAllScreams,
@@ -49,16 +49,18 @@ app.get("/user", verifyJwtToken, getUserDetails);
 //Telling the firebase that all our routs are in the app
 exports.api = functions.region("asia-south1").https.onRequest(app);
 
+//Like Notification
 exports.createNotificationOnLike = functions
   .region("asia-south1")
   .firestore.document("likes/{id}")
   .onCreate((snapshot) => {
-    db.doc(`/screams/${snapshot.data().screamId}`)
+    return db
+      .doc(`/screams/${snapshot.data().screamId}`)
       .get()
       .then((doc) => {
         if (doc.exists) {
           return db
-            .doc(`/notifications/${doc.id}`)
+            .doc(`/notifications/${snapshot.id}`)
             .set({
               createdAt: new Date().toISOString(),
               recipient: doc.data().userHandle,
@@ -75,19 +77,26 @@ exports.createNotificationOnLike = functions
               return;
             });
         }
+        return;
+      })
+      .catch((err) => {
+        console.error(err);
+        return;
       });
   });
 
+//Dislike Notification
 exports.createNotificationOnDislike = functions
   .region("asia-south1")
   .firestore.document("unlikes/{id}")
   .onCreate((snapshot) => {
-    db.doc(`/screams/${snapshot.data().screamId}`)
+    return db
+      .doc(`/screams/${snapshot.data().screamId}`)
       .get()
       .then((doc) => {
         if (doc.exists) {
           return db
-            .doc(`/notifications/${doc.id}`)
+            .doc(`/notifications/${snapshot.id}`)
             .set({
               createdAt: new Date().toISOString(),
               recipient: doc.data().userHandle,
@@ -104,9 +113,15 @@ exports.createNotificationOnDislike = functions
               return;
             });
         }
+        return;
+      })
+      .catch((err) => {
+        console.error(err);
+        return;
       });
   });
 
+//Comment Notification
 exports.createNotificationOnComment = functions
   .region("asia-south1")
   .firestore.document("comments/{id}")
@@ -116,7 +131,7 @@ exports.createNotificationOnComment = functions
       .then((doc) => {
         if (doc.exists) {
           return db
-            .doc(`/notifications/${doc.id}`)
+            .doc(`/notifications/${snapshot.id}`)
             .set({
               createdAt: new Date().toISOString(),
               recipient: doc.data().userHandle,
@@ -133,5 +148,10 @@ exports.createNotificationOnComment = functions
               return;
             });
         }
+        return;
+      })
+      .catch((err) => {
+        console.error(err);
+        return;
       });
   });
