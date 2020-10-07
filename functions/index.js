@@ -2,6 +2,8 @@ const functions = require("firebase-functions");
 
 const express = require("express");
 
+const db = require("./util/admin");
+
 const {
   getAllScreams,
   postOneScream,
@@ -46,3 +48,32 @@ app.get("/user", verifyJwtToken, getUserDetails);
 
 //Telling the firebase that all our routs are in the app
 exports.api = functions.region("asia-south1").https.onRequest(app);
+
+exports.createNotificationOnLike = functions
+  .region("asia-south1")
+  .firestore.document("likes/{id}")
+  .onCreate((snapshot) => {
+    db.doc(`/screams/${snapshot.data().screamId}`)
+      .get()
+      .then((doc) => {
+        if (doc.exists) {
+          return db
+            .doc(`/notifications/${doc.id}`)
+            .set({
+              createdAt: new Date().toISOString(),
+              recipient: doc.data().userHandle,
+              sender: snapshot.data().userHandle,
+              type: "like",
+              screamId: doc.id,
+              read: false,
+            })
+            .then(() => {
+              return;
+            })
+            .catch((err) => {
+              console.error(err);
+              return;
+            });
+        }
+      });
+  });
