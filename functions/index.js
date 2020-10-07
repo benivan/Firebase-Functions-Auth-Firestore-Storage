@@ -77,3 +77,32 @@ exports.createNotificationOnLike = functions
         }
       });
   });
+
+exports.createNotificationOnDislike = functions
+  .region("asia-south1")
+  .firestore.document("unlikes/{id}")
+  .onCreate((snapshot) => {
+    db.doc(`/screams/${snapshot.data().screamId}`)
+      .get()
+      .then((doc) => {
+        if (doc.exists) {
+          return db
+            .doc(`/notifications/${doc.id}`)
+            .set({
+              createdAt: new Date().toISOString(),
+              recipient: doc.data().userHandle,
+              sender: snapshot.data().userHandle,
+              type: "like",
+              screamId: doc.id,
+              read: false,
+            })
+            .then(() => {
+              return;
+            })
+            .catch((err) => {
+              console.error(err);
+              return;
+            });
+        }
+      });
+  });
