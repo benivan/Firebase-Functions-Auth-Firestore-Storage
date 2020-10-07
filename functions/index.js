@@ -10,6 +10,7 @@ const {
   commentOnScream,
   likeScream,
   unlikeScream,
+  deleteScream,
 } = require("./handlers/screams");
 
 const {
@@ -34,6 +35,7 @@ app.get("/scream/:screamId", getScream);
 app.post("/scream/:screamId/comment", verifyJwtToken, commentOnScream);
 app.post("/scream/:screamId/like", verifyJwtToken, likeScream);
 app.post("/scream/:screamId/unlike", verifyJwtToken, unlikeScream);
+app.delete("/scream/:screamId/", verifyJwtToken, deleteScream);
 
 //Users ROUTE
 app.post("/signup", signup);
