@@ -115,10 +115,29 @@ exports.getUserDetails = (req, res) => {
     .then((doc) => {
       if (doc.exists) {
         userDetails.userCredentials = doc.data();
-        return res.json(userDetails);
+        return db
+          .collection("notifications")
+          .where("recipient", "==", req.user.handle)
+          .orderBy("createdAt", "desc")
+          .get();
       } else {
         return res.status(404).json({ error: `${req.user.handle} not found` });
       }
+    })
+    .then((snapshot) => {
+      userDetails.notifications = [];
+      snapshot.forEach((doc) => {
+        userDetails.notifications.push({
+          recipient: doc.data().recipient,
+          sender: doc.data().sender,
+          createdAt: doc.data().createdAt,
+          type: doc.data().type,
+          screamId: doc.data().screamId,
+          read: doc.data().read,
+          notificationId: doc.id,
+        });
+      });
+      return res.json(userDetails);
     })
     .catch((err) => {
       console.error(err);
