@@ -327,3 +327,29 @@ exports.unlikeScream = (req, res) => {
       res.status(500).json({ error: "SOmething Went Wrong!" });
     });
 };
+
+// Delete Scream
+
+exports.deleteScream = (req, res) => {
+  const screamDocument = db.doc(`/screams/${req.params.screamId}`);
+
+  screamDocument
+    .get()
+    .then((doc) => {
+      if (!doc.exists) {
+        return res.status(400).json({ Error: "Scream Not Found" });
+      }
+      if (doc.data().userHandle !== req.user.handle) {
+        return res.status(403).json({ error: "Unauthorized" });
+      } else {
+        return screamDocument.delete();
+      }
+    })
+    .then(() => {
+      return res.json({ message: "Scream Deleted" });
+    })
+    .catch((err) => {
+      console.error(err);
+      return res.status(500).json({ error: err.code });
+    });
+};
