@@ -13,6 +13,7 @@ const {
   likeScream,
   unlikeScream,
   deleteScream,
+  getScreamByHandle,
 } = require("./handlers/screams");
 
 const {
@@ -21,6 +22,7 @@ const {
   uploadImage,
   addUserDetails,
   getUserDetails,
+  getOtheruserDetails,
 } = require("./handlers/users");
 
 const verifyJwtToken = require("./util/verifyJwtToken");
@@ -38,6 +40,7 @@ app.post("/scream/:screamId/comment", verifyJwtToken, commentOnScream);
 app.post("/scream/:screamId/like", verifyJwtToken, likeScream);
 app.post("/scream/:screamId/unlike", verifyJwtToken, unlikeScream);
 app.delete("/scream/:screamId/", verifyJwtToken, deleteScream);
+app.get("/screams/:handle", verifyJwtToken, getScreamByHandle);
 
 //Users ROUTE
 app.post("/signup", signup);
@@ -45,6 +48,7 @@ app.post("/login", login);
 app.post("/user/image", verifyJwtToken, uploadImage);
 app.post("/user", verifyJwtToken, addUserDetails);
 app.get("/user", verifyJwtToken, getUserDetails);
+app.get("/user/:handle", verifyJwtToken, getOtheruserDetails);
 
 //Telling the firebase that all our routs are in the app
 exports.api = functions.region("asia-south1").https.onRequest(app);

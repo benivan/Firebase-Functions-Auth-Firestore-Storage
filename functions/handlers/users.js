@@ -2,6 +2,7 @@ const { db, admin } = require("../util/admin");
 const firebase = require("firebase");
 
 const config = require("../util/config");
+
 const {
   validateSignupData,
   validateLoginData,
@@ -221,4 +222,25 @@ exports.uploadImage = (req, res) => {
   });
   busboy.end(req.rawBody);
   return res.status(201);
+};
+
+exports.getOtheruserDetails = (req, res) => {
+  let userDetails = {};
+  let screams = [];
+  db.doc(`/users/${req.params.handle}`)
+    .get()
+    .then((doc) => {
+      if (!doc.exists) {
+        return res.status(404).json({ Error: "user not found!" });
+      } else {
+        return (userDetails = doc.data());
+      }
+    })
+    .then(() => {
+      res.json(userDetails);
+    })
+    .catch((err) => {
+      console.error(err);
+      return res.status(500).json({ error: err.code });
+    });
 };
