@@ -226,21 +226,36 @@ exports.uploadImage = (req, res) => {
 
 exports.getOtheruserDetails = (req, res) => {
   let userDetails = {};
-  let screams = [];
-  db.doc(`/users/${req.params.handle}`)
-    .get()
-    .then((doc) => {
-      if (!doc.exists) {
-        return res.status(404).json({ Error: "user not found!" });
-      } else {
-        return (userDetails = doc.data());
-      }
-    })
-    .then(() => {
-      res.json(userDetails);
-    })
-    .catch((err) => {
-      console.error(err);
-      return res.status(500).json({ error: err.code });
-    });
+db.doc(`/users/${req.params.handle}`).get().then((doc) =>{
+  if (doc.exists){
+    userDetails = doc.data();
+    return db.collection("screams").where("userHandle","==",req.params.handle).get();
+  }else{
+    return res.status(404).json({error:"User Dont Found!"})
+  }
+}).then((snapshot)=>{
+  userDetails.screams = [];
+  snapshot.forEach((doc)=>{
+  userDetails.screams.push({
+  screamId :doc.id,
+  body:doc.data().body,
+  createdAt:doc.data().createdAt,
+  commentCount:doc.data().commentCount,
+  likeCount: doc.data().likeCount,
+  unlikeCount:doc.data().unlikeCount,
+  image:doc.data().imageUrl,
+  userHandle:doc.data().handle,
+});
+});
+return userDetails;
+}).then(()=>{
+  return res.json(userDetails);
+}).catch((err)=>{
+  console.error(err);
+  return res.status(500).json({error:"something went wrong!"});
+});
 };
+
+exports.markNotificationRead = (req,res) =>{
+
+}
