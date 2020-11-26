@@ -15,6 +15,10 @@ exports.getAllScreams = (req, res) => {
           body: doc.data().body,
           userHandle: doc.data().userHandle,
           createdAt: doc.data().createdAt,
+          likeCount:doc.data().likeCount,
+          unlikeCount:doc.data().unlikeCount,
+          imageUrl:doc.data().image,
+          commentCount:doc.data().commentCount
         });
       });
       return res.json(screams);
@@ -36,6 +40,9 @@ exports.getUserScreams = (req, res) => {
           screamId: doc.id,
           createdAt: doc.data().createdAt,
           body: doc.data().body,
+          commentCount: doc.data().commentCount,
+          likeCount: doc.data().likeCount,
+          unlikeCount: doc.data().unlikeCount,
         });
       });
       return res.json(screams);
@@ -96,7 +103,11 @@ exports.getScream = (req, res) => {
     .then((data) => {
       screamData.comments = [];
       data.forEach((doc) => {
-        screamData.comments.push(doc.data());
+        var commentData =  doc.data();
+        commentData.commentId = doc.id;
+        screamData.comments.push(commentData);
+        // screamData.comments.push(commentId = doc.id);
+        console.log(doc.id);
       });
       return res.json(screamData);
     })
@@ -113,6 +124,7 @@ exports.commentOnScream = (req, res) => {
   const newComment = {
     body: req.body.body,
     userHandle: req.user.handle,
+    imageUrl:req.user.imageUrl,
     screamId: req.params.screamId,
     createdAt: new Date().toISOString(),
   };
@@ -329,7 +341,6 @@ exports.unlikeScream = (req, res) => {
 };
 
 // Delete Scream
-
 exports.deleteScream = (req, res) => {
   const screamDocument = db.doc(`/screams/${req.params.screamId}`);
 
@@ -346,6 +357,15 @@ exports.deleteScream = (req, res) => {
       }
     })
     .then(() => {
+      // TODO: Delete all comment of deleated screams.
+
+      // db.collection("comments").where("screamId","==",req.params.screamId).get().then((snapshot) =>{
+      //   snapshot.forEach((doc) =>{
+      //     if(doc.exists){
+      //       doc(doc.id).delete();
+      //     }
+      //   })
+      // })
       return res.json({ message: "Scream Deleted" });
     })
     .catch((err) => {
@@ -353,3 +373,28 @@ exports.deleteScream = (req, res) => {
       return res.status(500).json({ error: err.code });
     });
 };
+
+
+exports.getScreamByHandle = (req, res) =>{
+
+  db.collection("screams").where("userHandle","==",req.params.handle).get().then((snapshot) =>{
+    screams = [];
+    snapshot.forEach((doc) =>{
+      screams.push({
+        screamId: doc.id,
+          createdAt: doc.data().createdAt,
+          body: doc.data().body,
+          commentCount: doc.data().commentCount,
+          likeCount: doc.data().likeCount,
+          unlikeCount: doc.data().unlikeCount,
+
+      });
+    });
+    return res.json(screams);
+  })
+  .catch((err) =>{
+    console.error(err);
+    return res.status(500).json({error:err.code});
+  })
+
+}
