@@ -257,5 +257,4 @@ return userDetails;
 };
 
 exports.markNotificationRead = (req,res) =>{
-
 }
