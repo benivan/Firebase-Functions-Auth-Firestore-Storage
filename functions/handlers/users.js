@@ -94,7 +94,7 @@ exports.login = (req, res) => {
       return getSignedJwtToken(userDataForToken);
     })
     .then((token) => {
-      return res.json({ token });
+      return res.status(200).json({token});
     })
     .catch((err) => {
       if (err.code === "auth/wrong-password") {
@@ -108,6 +108,9 @@ exports.login = (req, res) => {
     });
   return res.status(200);
 };
+exports.logout = (req,res) =>{
+  res.status(220);
+}
 //Get UserDetails
 exports.getUserDetails = (req, res) => {
   let userDetails = {};

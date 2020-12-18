@@ -19,6 +19,7 @@ const {
 const {
   signup,
   login,
+  logout,
   uploadImage,
   addUserDetails,
   getUserDetails,
@@ -51,6 +52,7 @@ app.post("/user", verifyJwtToken, addUserDetails);
 app.get("/user", verifyJwtToken, getUserDetails);
 app.get("/user/:handle", verifyJwtToken, getOtheruserDetails);
 app.post("/notification",verifyJwtToken,markNotificationRead);
+app.post("/logout",verifyJwtToken,logout);
 
 //Telling the firebase that all our routs are in the app
 exports.api = functions.region("asia-south1").https.onRequest(app);

@@ -47,19 +47,20 @@ exports.validateSignupData = (data) => {
 };
 
 exports.validateLoginData = (data) => {
-  let errors = [];
+  let errors = {};
 
   if (isEmpty(data.email)) {
     errors.email = "Must not be empty";
+   
   } else if (!isValidEmail(data.email)) {
     errors.email = "please enter a valid email";
+  
   }
 
   if (isEmpty(data.password)) {
     errors.password = "Must not be empty";
-  } else if (isStrongPassword(data.password)) {
-    errors.password = "Weak!!";
-  }
+   
+  } 
 
   return {
     errors,
