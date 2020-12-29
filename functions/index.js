@@ -34,7 +34,7 @@ const app = express();
 app.use(express.json());
 
 //Screams routes
-app.get("/screams", getAllScreams);
+app.get("/screams",verifyJwtToken, getAllScreams);
 app.post("/scream", verifyJwtToken, postOneScream);
 app.get("/u/screams", verifyJwtToken, getUserScreams);
 app.get("/scream/:screamId", getScream);
